@@ -1,0 +1,11 @@
+预测过程：
+在yolo.py、yolo_matt.py、yolo_video.py中，代码中的注释很详细，这里不再阐述。
+在参数上，score阈值设为0.1，iou阈值（包括模型阈值和WBF阈值）设为0.3能得到较好的识别结果。yolov3部分的代码是基于qqwweee/keras-yolo3进行更改的。
+运行过程：
+运行yolo_video.py，在程序运行窗口根据提示输入图片路径，按回车进行图像识别。
+修改yolo_video.py中的函数
+    parser.add_argument(
+        '--image', default=True, action="store_true",
+        help='Image detection mode, will ignore all positional arguments'
+    )
+将default=True修改为False，此时程序即进行视频的识别检测。
