@@ -1,6 +1,8 @@
-# Underwater Multi target Identification and Tracking System
+# 面向光学成像的水下多目标识别与跟踪系统设计与实现
 
-HEU毕业设计 使用Keras YOLOv3+Kalman Filter实现水下多目标识别与跟踪
+HEU毕业设计
+
+使用Keras YOLOv3+Kalman Filter算法实现水下多目标识别与跟踪
 
 ## 前言
 data目录当中，test目录下是测试集，train目录下是训练集。
@@ -23,7 +25,6 @@ data、model_data和pre_train内部分文件较大没有上传，即训练集以
 
 ## 数据预处理
 data_process.py中，对所有图像进行统计，对每一个候选框，进行细致的处理，代码中给出了详细的注释。候选框处理时**删除那些面积小于120的过小候选框**。之后再靠kmeans.py来生成yolo所需的anchors，最后得到data目录中的train_data.txt和yolo_anchors.txt。
-
 另外，赛事的目标种类只有4种，但数据集里有5种，多了一个水草。观察数据集后发现，水草和海胆在某些情况下十分相似，为了使模型增强对水草的区分能力，
 **在训练时用5个类别去训练，在预测的时候把水草类丢弃即可**。
 
@@ -34,11 +35,13 @@ data_process.py中，对所有图像进行统计，对每一个候选框，进�
 随机裁剪出来的尺寸也与按照原图直接缩放策略缩放后的尺寸相同。之后都是按照1:1的可能性**按顺序进行二次的轻度图像增强，水平翻转和垂直翻转**。对于测试集，直接进行缩放即可。之后按照上述所说的策略填充灰色像素。最后进行模型输入格式的处理，**像素归一化和候选框处理**。
 
 ## 模型训练
-在train.py中，输入尺寸为416×416，训练集和测试集按照9:1划分。训练过程分为两个阶段来训练，第一阶段冻结预训练所有层，采用RAdam(最小值设为1e-5)， warm_up策略，batch_size设为32，训练100轮，同时做Tensorboard记录。在第二阶段打开全部网络层来训练，采用RAdam(最小值设为1e-6)，warm_up策略，swa算法，cosine-annealing学习率策略（范围1e-2到1e-6），batch_size设为8（主要原因是显存限制），训练200轮，同时做Tensorboard记录，通过ModelCheckpoint策略对每一轮按照val_loss来决定是否保存模型，最终选用val_loss最小的模型来做预测。将最好的模型更名为yolo1.h5。
+在train.py中，输入尺寸为416×416，训练集和测试集按照9:1划分。训练过程分为两个阶段，第一阶段冻结预训练所有层，采用RAdam(最小值设为1e-5)， warm_up策略，batch_size设为32，训练100轮，同时做Tensorboard记录。
+在第二阶段打开全部网络层来训练，采用RAdam(最小值设为1e-6)，warm_up策略，swa算法，cosine-annealing学习率策略（范围1e-2到1e-6），batch_size设为8（主要原因是显存限制），训练200轮，同时做Tensorboard记录，通过ModelCheckpoint策略对每一轮按照val_loss来决定是否保存模型，最终选用val_loss最小的模型来做预测。将最好的模型更名为yolo1.h5。
 
 ## 预测
 在yolo.py、yolo_matt.py、yolo_video.py中，代码中的注释很详细，这里不再阐述。
 在参数上，**score阈值设为0.001，iou阈值（包括模型阈值和WBF阈值）设为0.25**能得到最高的分数。
+
 yolov3部分的代码是基于[qqwweee/keras-yolo3](https://github.com/qqwweee/keras-yolo3)进行更改的。
 
 ## ps
